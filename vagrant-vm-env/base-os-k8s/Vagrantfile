@@ -1,0 +1,24 @@
+IMAGE_NAME = "base-docker"
+MASTERS_NUM = 1
+MASTERS_CPU = 2 
+MASTERS_MEM = 2048
+
+NODES_NUM = 3
+NODES_CPU = 1
+NODES_MEM = 2048
+
+NAME = "base-k8s"
+
+Vagrant.configure("2") do |config|
+    config.ssh.insert_key = false
+    config.vm.box = IMAGE_NAME
+    config.vm.network  "public_network"
+    config.vm.hostname = NAME
+    config.vm.synced_folder  ".", "/vagrant", disabled: true
+    config.vm.provider "virtualbox" do |v|
+        v.name = NAME
+        v.memory = MASTERS_MEM
+        v.cpus = MASTERS_CPU
+    end
+    config.vm.provision "shell", path: "init.sh"
+end

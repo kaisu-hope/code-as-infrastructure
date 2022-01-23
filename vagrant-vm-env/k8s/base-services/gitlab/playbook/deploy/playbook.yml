@@ -1,0 +1,17 @@
+- hosts: kube-master
+  remote_user: vagrant
+  tasks:
+    - name: copy deploy files
+      copy:
+        src: ./deploy
+        dest: /deploy
+    - name: switch folder
+      shell: cd /deploy
+    - name: create gitlab namespaces
+      shell: kubectl create ns gitlab
+    - name: install redis 
+      shell: kubectl apply -f redis.yaml
+    - name: install postgresql
+      shell: kubectl apply -f postgresql.yaml
+    - name: install gitlab
+      shell: kubectl apply -f gitlab.yaml  
