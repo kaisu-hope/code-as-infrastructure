@@ -1,9 +1,8 @@
 #! /bin/bash
 
-MASTER_IP="192.168.1.110"
+MASTER_IP="10.2.10.15"
 POD_CIDR="172.172.0.0/16"
 
-sudo sed -i "$ a Environment=\"KUBELET_EXTRA_ARGS=--node-ip=`ip a|grep -w 'inet'|grep 'global'|sed 's/^.*inet //g'|sed 's/\/[0-9][0-9].*$//g' | grep 192`\"" /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 sudo systemctl daemon-reload
 sudo systemctl restart kubelet
 sudo kubeadm init --apiserver-advertise-address=$MASTER_IP --apiserver-cert-extra-sans=$MASTER_IP --pod-network-cidr=$POD_CIDR --image-repository registry.aliyuncs.com/google_containers --ignore-preflight-errors Swap
@@ -33,10 +32,7 @@ sudo curl https://docs.projectcalico.org/manifests/calico.yaml -O
 
 kubectl apply -f calico.yaml
 
-
-
 sudo apt install nfs-kernel-server -y
-
 
 sudo mkdir -p /data/nfs/
 

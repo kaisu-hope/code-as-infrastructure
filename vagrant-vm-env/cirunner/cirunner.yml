@@ -1,0 +1,38 @@
+---
+- hosts: "cirunner*"
+  become: yes
+
+  vars:
+    gitlab_runner_coordinator_url: "http://git.esiran.com/"
+    gitlab_runners:
+      - name: "{{ vm_hostname }}"
+        token: "C9voRVUxXsz-Y9xAK1PZ"
+        executor: "docker"
+        tags: "docker,vagrant,test"
+  tasks:
+   - name: get gitlab_runner
+     become_user: root
+     become_method: sudo
+     shell: wget -qO - https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh | sudo bash 
+   - name: install gitlab_runner
+     become_user: root
+     become_method: sudo
+     shell: apt install -y gitlab-runner
+   - name: Register new runners using the gitlab-runner command.
+     shell: >
+       gitlab-runner register --non-interactive
+       --url "{{ item.url | default(gitlab_runner_coordinator_url) }}"
+       --registration-token {{ item.token | default(gitlab_runner_token) }}
+       --name "{{ item.name }}"
+       --tag-list "{{ item.tags }}"
+       {% if item.builds_dir | default('') != '' %}
+       --builds-dir {{ item.builds_dir }}
+       {% endif %}
+       {% if item.executor == "docker" %}
+       --executor docker
+       --docker-image "docker:19.03.12"
+       --docker-volumes "/etc/docker/daemon.json:/etc/docker/daemon.json"
+       --docker-privileged
+       {% endif %}
+     with_items: "{{ gitlab_runners }}"
+     become: yes

@@ -1,0 +1,32 @@
+IMAGE_NAME = "base-docker"
+NODE_NUM = 2
+MASTERS_CPU = 1
+MASTERS_MEM = 2048
+
+
+VM_NAME = "cirunner"
+
+
+Vagrant.configure("2") do |config|
+    (1..NODE_NUM).each do |i|
+        config.vm.define "#{VM_NAME}-#{i}" do |node|
+            node.ssh.insert_key = false
+            node.vm.box = IMAGE_NAME
+            node.vm.network  "public_network", bridge: "enp5s0"
+            node.vm.hostname = "#{VM_NAME}-#{i}"
+            node.vm.synced_folder  ".", "/vagrant", type: "rsync"
+
+            node.vm.provider "virtualbox" do |v|
+                v.name = "#{VM_NAME}-#{i}"
+                v.memory = MASTERS_MEM
+                v.cpus = MASTERS_CPU
+            end
+            node.vm.provision "ansible" do |ansible|
+                ansible.playbook = "./cirunner.yml"
+                ansible.extra_vars = {
+                    vm_hostname: "#{VM_NAME}-#{i}"
+                }
+            end
+        end
+    end
+end

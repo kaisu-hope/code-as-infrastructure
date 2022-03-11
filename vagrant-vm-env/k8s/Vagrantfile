@@ -2,7 +2,7 @@ IMAGE_NAME = "base-k8s"
 MASTERS_NUM = 1
 MASTERS_CPU = 2 
 MASTERS_MEM = 4096
-MASTERS_IP="192.168.1.110"
+MASTERS_IP="10.2.10.15"
 
 NODES_NUM = 2
 NODES_CPU = 1
@@ -19,16 +19,16 @@ Vagrant.configure("2") do |config|
           v.cpus = MASTERS_CPU
       end
       master.vm.provision "shell", path: "master.sh"
-      master.vm.provision "ansible" do |ansible|
-        ansible.playbook = "base-services/gitlab/playbook/main.yaml"
-      end
+      # master.vm.provision "ansible" do |ansible|
+      #   ansible.playbook = "base-services/gitlab/playbook/main.yaml"
+      # end
     end
 
     (1..NODES_NUM).each do |i|
         config.vm.define "node0#{i}" do |node|
           node.vm.box = IMAGE_NAME
           node.vm.hostname = "node0#{i}"
-          node.vm.network "public_network"
+          node.vm.network "public_network",bridge:"enp5s0",ip:"10.2.10.11#{i}"
           node.vm.provider "virtualbox" do |v|
               v.name = "k8s-node-0#{i}"
               v.memory = NODES_MEM
