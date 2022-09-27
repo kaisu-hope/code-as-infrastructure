@@ -1,0 +1,20 @@
+IMAGE_NAME = "ubuntu-base"
+CPU = 4
+MEM = 8192
+NAME = "base-k8s"
+
+Vagrant.configure("2") do |config|
+    config.ssh.username = 'root'
+    config.ssh.password = 'root'
+    config.ssh.insert_key = 'true'
+    config.vm.box = IMAGE_NAME
+    config.vm.network  "public_network"
+    config.vm.hostname = NAME
+    config.vm.synced_folder  ".", "/vagrant"
+    config.vm.provider "virtualbox" do |v|
+        v.name = NAME
+        v.memory = MEM
+        v.cpus = CPU
+    end
+    config.vm.provision "shell", path: "init.sh"
+end

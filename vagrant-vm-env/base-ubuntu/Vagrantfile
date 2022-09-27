@@ -1,0 +1,17 @@
+IMAGE_NAME = "ubuntu/focal64"
+CPU = 2
+MEM = 2048
+NAME = "base-ubuntu"
+
+Vagrant.configure("2") do |config|
+    config.vm.box = IMAGE_NAME
+    config.vm.network  "public_network"
+    config.vm.hostname = NAME
+    config.vm.synced_folder  ".", "/vagrant"
+    config.vm.provider "virtualbox" do |v|
+        v.name = NAME
+        v.memory = MEM
+        v.cpus = CPU
+    end
+    config.vm.provision "shell", path: "init.sh"
+end
