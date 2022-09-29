@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs-client-provisioner
+  labels:
+    app: nfs-client-provisioner
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: nfs-client-provisioner
+  template:
+    metadata:
+      labels:
+        app: nfs-client-provisioner
+    spec:
+      serviceAccountName: nfs-client-provisioner
+      containers:
+        - name: nfs-client-provisioner
+          image: gcr.lank8s.cn/k8s-staging-sig-storage/nfs-subdir-external-provisioner:v4.0.0
+          volumeMounts:
+            - name: nfs-client-root
+              mountPath: /persistentVolumes
+          env:
+            - name: PROVISIONER_NAME
+              value: nfs-storage  #provisioner名称,请确保该名称与 nfs-StorageClass.yaml文件中的provisioner名称保持一致
+            - name: NFS_SERVER
+              value: 192.168.2.88   #NFS Server IP地址
+            - name: NFS_PATH
+              value: "/data/nfs"    #NFS挂载卷
+      volumes:
+        - name: nfs-client-root
+          nfs:
+            server: 192.168.2.88  #NFS Server IP地址
+            path: "/data/nfs"     #NFS 挂载卷

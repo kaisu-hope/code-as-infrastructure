@@ -2,7 +2,7 @@ IMAGE_NAME = "base-k8s"
 MASTERS_NUM = 1
 MASTERS_CPU = 4
 MASTERS_MEM = 8192
-MASTERS_IP="192.168.31.88"
+MASTERS_IP="192.168.1.88"
 
 NODES_NUM = 3
 NODES_CPU = 4
@@ -16,6 +16,7 @@ Vagrant.configure("2") do |config|
       master.vm.box = IMAGE_NAME
       master.vm.hostname = "master"
       master.vm.network  "public_network" , ip: MASTERS_IP
+      master.vm.network "private_network", ip: "192.168.2.88"
       master.vm.provider "virtualbox" do |v|
           v.name="k8s-master"
           v.memory = MASTERS_MEM
@@ -30,7 +31,8 @@ Vagrant.configure("2") do |config|
           node.ssh.insert_key = 'true'
           node.vm.box = IMAGE_NAME
           node.vm.hostname = "node0#{i}"
-          node.vm.network "public_network",ip:"192.168.31.11#{i}"
+          node.vm.network "public_network",ip:"192.168.1.21#{i}"
+          node.vm.network "private_network",ip:"192.168.2.21#{i}"
           node.vm.provider "virtualbox" do |v|
               v.name = "k8s-node-0#{i}"
               v.memory = NODES_MEM
